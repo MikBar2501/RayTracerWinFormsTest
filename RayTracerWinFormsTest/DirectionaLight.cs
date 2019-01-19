@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 
 namespace RayTracerWinFormsTest
 {
-    class PointLight
+    class DirectionaLight 
     {
-        public PointLight(Vector3 position, ColorRgb color) {
-            this.Position = position;
+        public DirectionaLight(Vector3 Position, ColorRgb color, Vector3 Direction)
+        {
+            this.Position = Position;
             this.Color = color;
+            this.Direction = Direction;
         }
-
         public Vector3 Position { get; private set; }
         public ColorRgb Color { get; private set; }
-        public static double constant { get; private set; }
-        public static double linear { get; private set; }
-        public static double quadratic { get; private set; }
+        public Vector3 Direction;
     }
 }

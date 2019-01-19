@@ -8,14 +8,12 @@ namespace RayTracerWinFormsTest
 {
     class Light
     {
-        public Light(Vector3 vector, bool Directed, ColorRgb color)
+        public Light(Vector3 Position, ColorRgb color)
         {
-            this.Vector = vector;
-            this.Directed = Directed;
+            this.Position = Position;
             this.Color = color;
         }
-        public Vector3 Vector { get; private set; }
+        public Vector3 Position { get; private set; }
         public ColorRgb Color { get; private set; }
-        public bool Directed { get; private set; }
     }
 }

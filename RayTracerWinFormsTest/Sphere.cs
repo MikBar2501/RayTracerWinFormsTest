@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Numerics;
 
 namespace RayTracerWinFormsTest
 {
@@ -20,12 +21,13 @@ namespace RayTracerWinFormsTest
 
         public override bool HitTest(Ray ray, ref double minDistance, ref Vector3 outNormal)
         {
+            Ray transformRay = ray * reverse;
             double t;
-            Vector3 distance = ray.Origin - center;
+            Vector3 distance = transformRay.Origin - center;
 
 
-            double a = ray.Direction.LengthSq;
-            double b = (distance * 2).Dot(ray.Direction);
+            double a = transformRay.Direction.LengthSq;
+            double b = (distance * 2).Dot(transformRay.Direction);
             double c = distance.LengthSq - radius * radius;
             double disc = b * b - 4 * a * c;
 
@@ -46,16 +48,16 @@ namespace RayTracerWinFormsTest
                 return false;
             }
 
-            Vector3 hitPoint = (ray.Origin + ray.Direction * t);
+            Vector3 hitPoint = (transformRay.Origin + transformRay.Direction * t);
+            Vector3 normal = (hitPoint - center).Normalised;
+            Matrix4x4 newMatrix;
+            Matrix4x4.Invert(transform, out newMatrix);
+            newMatrix = Matrix4x4.Transpose(newMatrix);
+            normal = newMatrix * normal;
             outNormal = (hitPoint - center).Normalised;
             minDistance = t;
             return true;
         }
 
-        Vector3 Translated(Vector3 translated)
-        {
-            double[,] matrix = new double[4, 4] { { 1, 0, 0, translated.X }, { 0, 1, 0, translated.Y }, { 0, 0, 1, translated.Z }, { 0, 0, 0, 1 }, };
-            return translated;
-        }
     }
 }

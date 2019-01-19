@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using System.Numerics;
 
 namespace RayTracerWinFormsTest
 {
@@ -85,10 +86,36 @@ namespace RayTracerWinFormsTest
             return vecOn * (vecOn.Dot(vecTo) / vecOn.Dot(vecOn));
         }
 
+        /*public static Vector3 operator *(Vector3 vec, Matrix4x4 matrix)
+        {
+            Matrix oneColumnMatrix = new Matrix(4, 1);
+            oneColumnMatrix.cells[0, 0] = vec.X;
+            oneColumnMatrix.cells[1, 0] = vec.Y;
+            oneColumnMatrix.cells[2, 0] = vec.Z;
+            oneColumnMatrix.cells[3, 0] = 1;
+            Matrix newMatrix = matrix * oneColumnMatrix;
+
+            return new Vector3(newMatrix.cells[0, 0], newMatrix.cells[1, 0], newMatrix.cells[2, 0]); 
+        }*/
+
+        public static Vector3 operator *(Matrix4x4 matrix, Vector3 vec)
+        {
+            float[] oneColumnMatrix = {(float) vec.X, (float)vec.Y, (float)vec.Z, 1 };
+            double row0 = matrix.M11 * oneColumnMatrix[0] + matrix.M12 * oneColumnMatrix[1] + matrix.M13 * oneColumnMatrix[2] + matrix.M14 * oneColumnMatrix[3];
+            double row1 = matrix.M21 * oneColumnMatrix[0] + matrix.M22 * oneColumnMatrix[1] + matrix.M23 * oneColumnMatrix[2] + matrix.M24 * oneColumnMatrix[3];
+            double row2 = matrix.M31 * oneColumnMatrix[0] + matrix.M32 * oneColumnMatrix[1] + matrix.M33 * oneColumnMatrix[2] + matrix.M34 * oneColumnMatrix[3];
+            double row3 = matrix.M41 * oneColumnMatrix[0] + matrix.M42 * oneColumnMatrix[1] + matrix.M43 * oneColumnMatrix[2] + matrix.M44 * oneColumnMatrix[3];
+            return new Vector3(row0, row1, row2);
+        }
+
+        public Vector3 CreateVector(Matrix4x4 matrix)
+        {
+            return new Vector3(matrix.M11, matrix.M21, matrix.M31);
+        }
+
         public static Vector3 Reflect(Vector3 vec, Vector3 normal)
         {
-            double dot = normal.Dot(vec);
-            return normal * dot * 2 - vec;
+            return normal * normal.Dot(vec) * 2 - vec;
         }
 
         public static Vector3 operator -(Vector3 vec)
@@ -140,42 +167,48 @@ namespace RayTracerWinFormsTest
 
         public Vector3 Origin { get; set; }
         public Vector3 Direction { get; set; }
+
+        /*public static Ray operator *(Ray ray, Matrix4x4 matrix)
+        {
+            Matrix newMatrix = new Matrix(matrix);
+            for(int x = 0; x < matrix.rowsCount; x++)
+            {
+                newMatrix.cells[x, 3] = 0;
+            }
+
+            for (int y = 0; y < matrix.columnsCount; y++)
+            {
+                newMatrix.cells[3, y] = 0;
+            }
+
+            return new Ray(ray.Origin * matrix, (ray.Direction* newMatrix).Normalised);
+
+        }*/
+
+        public static Ray operator *(Ray ray, Matrix4x4 matrix)
+        {
+            //Matrix newMatrix = new Matrix(matrix);
+            Matrix4x4 newMatrix = matrix;
+            newMatrix.M14 = 0;
+            newMatrix.M24 = 0;
+            newMatrix.M34 = 0;
+            newMatrix.M44 = 0;
+            newMatrix.M41 = 0;
+            newMatrix.M42 = 0;
+            newMatrix.M43 = 0;
+            newMatrix.M44 = 0;
+
+            return new Ray(matrix* ray.Origin, (newMatrix * ray.Direction).Normalised);
+
+        }
     }
 
     abstract class GeometricObject
     {
         public IMaterial Material { get; set; }
         public abstract bool HitTest(Ray ray, ref double distance, ref Vector3 normal);
-
-        public void Translated(Vector3 translated)
-        {
-
-        }
-
-        public void Scale(Vector3 scale)
-        {
-
-        }
-
-        public void RotX(double angle)
-        {
-
-        }
-
-        public void RotY(double angle)
-        {
-
-        }
-
-        public void RotZ(double angle)
-        {
-
-        }
-
-        public void TripleRot(Vector3 angle)
-        {
-
-        }
+        public Matrix4x4 transform;
+        public Matrix4x4 reverse;
     }
 
     

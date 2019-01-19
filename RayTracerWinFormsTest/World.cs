@@ -12,7 +12,7 @@ namespace RayTracerWinFormsTest
         List<GeometricObject> objects;
         List<PointLight> lights;
 
-        public World(Color background)
+        public World(ColorRgb background)
         {
             this.BackgroundColor = background;
             this.objects = new List<GeometricObject>();

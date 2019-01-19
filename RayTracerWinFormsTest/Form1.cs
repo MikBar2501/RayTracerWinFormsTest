@@ -60,9 +60,10 @@ namespace RayTracerWinFormsTest
             
        
             Bitmap image = tracer.Raytrace(world, camera, new Size(1024, 1024));
-  
+            DateTime data = DateTime.UtcNow;
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            image.Save("raytraced.png");
+            string saveName = "raytraced-" + data.ToString("dd-MM-yyyy") + ".png";
+            image.Save(saveName);
             pictureBox1.Image = image;
             //pictureBox1.ImageLocation = @"G:\Projekty\Elementy Grafiki\RaytracerTest\RayTracerWinFormsTest — kopia\RayTracerWinFormsTest\bin\Debug\raytraced.png";
         }
