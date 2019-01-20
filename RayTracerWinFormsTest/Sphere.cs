@@ -21,7 +21,8 @@ namespace RayTracerWinFormsTest
 
         public override bool HitTest(Ray ray, ref double minDistance, ref Vector3 outNormal)
         {
-            Ray transformRay = ray * reverse;
+            //Ray transformRay = ray * reverse;
+            Ray transformRay = ray;
             double t;
             Vector3 distance = transformRay.Origin - center;
 

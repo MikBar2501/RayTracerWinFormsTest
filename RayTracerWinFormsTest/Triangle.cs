@@ -23,7 +23,8 @@ namespace RayTracerWinFormsTest
 
         public override bool HitTest(Ray ray, ref double distance, ref Vector3 outNormal)
         {
-            Ray transformRay = ray * reverse;
+            //Ray transformRay = ray * reverse;
+            Ray transformRay = ray;
             normal = Vector3.Cross(v1-v0, v2-v0).Normalised;
             double t = (v0.Dot(normal) - transformRay.Origin.Dot(normal)) / transformRay.Direction.Dot(normal);
             //Vector3 middle = (v1 + v2 + v0)/3;
@@ -44,9 +45,9 @@ namespace RayTracerWinFormsTest
             if (!((u < 0 || u> 1) || (v < 0 || v > 1) || (w < 0 || w > 1)))
             {
                 hitPoint = transform * hitPoint;
-                Matrix4x4.Invert(transform, out newMatrix);
-                newMatrix = Matrix4x4.Transpose(newMatrix);
-                normal = newMatrix * normal;
+               // Matrix4x4.Invert(transform, out newMatrix);
+               // newMatrix = Matrix4x4.Transpose(newMatrix);
+              //  normal = newMatrix * normal;
                 distance = normal.Dot(hitPoint);
                 outNormal = normal.Normalised;
                 return true;

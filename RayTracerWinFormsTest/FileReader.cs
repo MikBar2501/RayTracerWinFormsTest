@@ -2,44 +2,53 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
 using System.Threading.Tasks;
+using System.IO;
+using System.Diagnostics;
+using System.ComponentModel;
+using System.Data;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace RayTracerWinFormsTest
 {
     class FileReader
     {
-        World world;
+        World world = new World(Color.White);
         List<Vector3> vertexList = new List<Vector3>();
         //Vector3[] vertexList;
         List<Transformation> TransformationsStack = new List<Transformation>();
-        IMaterial material = new PerfectDiffuse(Color.Purple);;
-        string savePath;
-        int resolutionWidth;
-        int resolutionHeight;
-        
+        //IMaterial material = new PerfectDiffuse(Color.Purple);
+        IMaterial material = new Reflective(Color.LightBlue, 0.4, 1, 300, 0.6);
+        ICamera camera;
+        string savePath = "n.png";
+        int resolutionWidth = 1024;
+        int resolutionHeight = 1024;
+
 
         public void ReadFile(string filePath)
         {
             string[] lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            foreach(string line in lines)
+            
+            foreach (string line in lines)
             {
-                if(line[0].Equals("#") || line.Equals(""))
+                if (line.Equals("") || line[0].Equals('#'))
                 {
                     continue;
                 }
                 List<string> lineString = new List<string>();
                 string tempString = "";
-                for(int i = 0; i<line.Length; i++)
+                for (int i = 0; i < line.Length; i++)
                 {
-                    if(line[i].Equals(" "))
+                    if (line[i]!=' ')
+                    {
+                        tempString += line[i];
+                        
+                    } else
                     {
                         lineString.Add(tempString);
                         tempString = "";
                     }
-
-                    tempString += line[i];
 
                 }
                 lineString.Add(tempString);
@@ -56,7 +65,7 @@ namespace RayTracerWinFormsTest
                         break;
 
                     case "tri":
-                        
+                        CreateTriangle(lineString);
                         break;
 
                     case "camera":
@@ -64,15 +73,15 @@ namespace RayTracerWinFormsTest
                         break;
 
                     case "size":
-                        
+                        ImageSize(lineString);
                         break;
 
                     case "sphere":
-                        
+                        CreateSphere(lineString);
                         break;
 
                     case "ambient":
-                        CreateWorld(lineString);
+                        //CreateWorld(lineString);
                         break;
 
                     case "pushTransform":
@@ -96,11 +105,11 @@ namespace RayTracerWinFormsTest
                         break;
 
                     case "directional":
-                        
+                        CreateLight(lineString);
                         break;
 
                     case "point":
-                        
+                        CreateLight(lineString);
                         break;
 
                     case "attenuation":
@@ -128,7 +137,7 @@ namespace RayTracerWinFormsTest
                         break;
 
                     case "output":
-
+                        OutputFile(lineString);
                         break;
 
                     default:
@@ -136,6 +145,11 @@ namespace RayTracerWinFormsTest
                 }
 
             }
+            //world.Add(new Plane(new Vector3(0, -2, 0), new Vector3(0, 1, 0), material));
+
+            Raytracer tracer = new Raytracer(5);
+            Bitmap image = tracer.Raytrace(world, camera, new Size(resolutionWidth, resolutionHeight));
+            image.Save(savePath);
 
         }
 
@@ -146,31 +160,107 @@ namespace RayTracerWinFormsTest
 
         void NewVertex(List<String> list)
         {
-            vertexList.Add(new Vector3(double.Parse(list[1]), double.Parse(list[2]), double.Parse(list[3])));
+            vertexList.Add(new Vector3(ConvertDouble(list[1]), ConvertDouble(list[2]), ConvertDouble(list[3])));
         }
 
         void CreateTriangle(List<String> list)
         {
-            world.Add(new Triangle(vertexList[int.Parse(list[1])], vertexList[int.Parse(list[2])],vertexList[int.Parse(list[3])], material));
+            world.Add(new Triangle(vertexList[int.Parse(list[1])], vertexList[int.Parse(list[2])], vertexList[int.Parse(list[3])], material));
         }
 
         void CreateWorld(List<String> list)
         {
-            world = new World(new ColorRgb(double.Parse(list[1]), double.Parse(list[2]), double.Parse(list[3])));
+            world = new World(new ColorRgb(ConvertDouble(list[1]), ConvertDouble(list[2]), ConvertDouble(list[3])));
         }
 
         void CreateCamera(List<String> list)
         {
-            ICamera camera = new Pinhole(new Vector3(double.Parse(list[1]), double.Parse(list[2]), double.Parse(list[3])), new Vector3(double.Parse(list[4]), double.Parse(list[5]), double.Parse(list[6])), new Vector3(double.Parse(list[7]), double.Parse(list[8]), double.Parse(list[9])), 1);
+            camera = new Pinhole(new Vector3(ConvertDouble(list[1]), ConvertDouble(list[2]), ConvertDouble(list[3])), new Vector3(ConvertDouble(list[4]), ConvertDouble(list[5]), ConvertDouble(list[6])), new Vector3(ConvertDouble(list[7]), ConvertDouble(list[8]), ConvertDouble(list[9])), 1);
         }
 
         void CreateSphere(List<String> list)
         {
-            world.Add(new Sphere(new Vector3(double.Parse(list[1]), double.Parse(list[2]), double.Parse(list[3])), double.Parse(list[4]), material));
+            world.Add(new Sphere(new Vector3(ConvertDouble(list[1]), ConvertDouble(list[2]), ConvertDouble(list[3])), ConvertDouble(list[4]), material));
+        }
+
+        void CreateLight(List<String> list)
+        {
+            world.AddLight(new PointLight(new Vector3(ConvertDouble(list[1]), ConvertDouble(list[2]), ConvertDouble(list[3])), Color.White));
+        }
+
+        void OutputFile(List<String> list)
+        {
+            savePath = list[1];
+        }
+
+        void ImageSize(List<String> list)
+        {
+            resolutionWidth = int.Parse(list[1]);
+            resolutionHeight = int.Parse(list[2]);
         }
 
 
 
+        double ConvertDouble(string tekst)
+        {
+            double returned = 0;
+            bool sign = false;
+            double mod = 1.0;
+            bool wasDot = false;
+            string number = "";
+            for (int i = 0; i < tekst.Length; i++)
+            {
+                if (tekst[i] == '+')
+                {
+                    continue;
+                }
+                if (tekst[i] == '-')
+                {
+                    sign = true;
+                    continue;
+                }
+                if (tekst[i] == '.')
+                {
+                    if(!number.Equals(""))
+                    {
+                        if(sign)
+                        {
+                            returned += double.Parse(number) * -1;
+                            number = "";
+                        }
+                        else
+                        {
+                            returned += double.Parse(number) * 1;
+                            number = "";
+                        }
+                        
+                    }
+                    wasDot = true;
+                }
+                else
+                {
+                    number += tekst[i];
+                    if(wasDot)
+                    {
+                        mod *= 0.1;
+                    }
+                }
 
+                if (!number.Equals(""))
+                {
+                    if (sign)
+                    {
+                        returned += double.Parse(number) * mod * -1;
+                    } else
+                    {
+                        returned += double.Parse(number) * mod * 1;
+                    }
+                        
+                }
+
+                
+            }
+            return returned;
         }
+    }
 }
