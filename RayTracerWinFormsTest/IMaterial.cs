@@ -9,5 +9,7 @@ namespace RayTracerWinFormsTest
     interface IMaterial
     {
         ColorRgb Shade(Raytracer tracer, HitInfo hit);
+        void ChangeColor(double R, double G, double B);
+        void ChangeColor(ColorRgb color);
     }
 }

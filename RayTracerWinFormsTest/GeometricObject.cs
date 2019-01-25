@@ -207,8 +207,7 @@ namespace RayTracerWinFormsTest
     {
         public IMaterial Material { get; set; }
         public abstract bool HitTest(Ray ray, ref double distance, ref Vector3 normal);
-        public Matrix4x4 transform;
-        public Matrix4x4 reverse;
+        public Transformation transform;
     }
 
     

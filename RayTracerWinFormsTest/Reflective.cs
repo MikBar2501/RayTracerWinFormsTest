@@ -31,5 +31,19 @@ namespace RayTracerWinFormsTest
             radiance += tracer.ShadeRay(hit.World, reflectedRay, hit.Depth) * reflectionColor * reflectivity;
             return radiance;
         }
+
+        public void ChangeColor(double R, double G, double B)
+        {
+            R = 255 * R;
+            G = 255 * G;
+            B = 255 * B;
+
+            direct.SetColor(new ColorRgb(R, G, B));
+        }
+
+        public void ChangeColor(ColorRgb color)
+        {
+            direct.SetColor(color);
+        }
     }
 }

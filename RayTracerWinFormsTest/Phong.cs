@@ -21,22 +21,6 @@ namespace RayTracerWinFormsTest
             this.specularExponent = specularExponent;
         }
 
-        /*public ColorRgb Radiance(PointLight light, HitInfo hit)
-        {
-            Vector3 inDirection = (light.Position - hit.HitPoint).Normalised;
-            double diffuseFactor = inDirection.Dot(hit.Normal);
-
-            if (diffuseFactor < 0) { return ColorRgb.Black; }
-
-            ColorRgb result = light.Color * materialColor * diffuseFactor * diffuseCoeff;
-            double phongFactor = PhongFactor(inDirection, hit.Normal, -hit.Ray.Direction);
-
-            if(phongFactor != 0)
-            { result += materialColor * specular * phongFactor; }
-
-            return result;
-        }*/
-
         public ColorRgb Shade(Raytracer tracer, HitInfo hit)
         {
             ColorRgb totalColor = ColorRgb.Black;
@@ -61,6 +45,25 @@ namespace RayTracerWinFormsTest
             if (cosAngle <= 0) { return 0; }
 
             return Math.Pow(cosAngle, specularExponent);
+        }
+
+        public void ChangeColor(double R, double G, double B)
+        {
+            R = 255 * R;
+            G = 255 * G;
+            B = 255 * B;
+
+            materialColor = new ColorRgb(R, G, B);
+        }
+
+        public void ChangeColor(ColorRgb color)
+        {
+            materialColor = color;
+        }
+
+        public void SetColor(ColorRgb color)
+        {
+            materialColor = color;
         }
     }
 }

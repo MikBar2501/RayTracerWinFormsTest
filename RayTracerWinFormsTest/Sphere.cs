@@ -19,10 +19,18 @@ namespace RayTracerWinFormsTest
             base.Material = material;
         }
 
+        public Sphere(Vector3 center, double radius, IMaterial material, Transformation transform)
+        {
+            this.center = center;
+            this.radius = radius;
+            base.Material = material;
+            base.transform = transform;
+        }
+
         public override bool HitTest(Ray ray, ref double minDistance, ref Vector3 outNormal)
         {
-            //Ray transformRay = ray * reverse;
-            Ray transformRay = ray;
+            Ray transformRay = ray * transform.GetReverseTransform();
+            //Ray transformRay = ray;
             double t;
             Vector3 distance = transformRay.Origin - center;
 
@@ -51,11 +59,15 @@ namespace RayTracerWinFormsTest
 
             Vector3 hitPoint = (transformRay.Origin + transformRay.Direction * t);
             Vector3 normal = (hitPoint - center).Normalised;
-            Matrix4x4 newMatrix;
-            Matrix4x4.Invert(transform, out newMatrix);
-            newMatrix = Matrix4x4.Transpose(newMatrix);
-            normal = newMatrix * normal;
-            outNormal = (hitPoint - center).Normalised;
+            Matrix4x4 inverse;
+            Matrix4x4.Invert(transform.GetMatrix(), out inverse);
+            normal = (Matrix4x4.Transpose(inverse) * normal).Normalised;
+            //Matrix4x4 newMatrix;
+            //Matrix4x4.Invert(transform, out newMatrix);
+            //newMatrix = Matrix4x4.Transpose(newMatrix);
+            //normal = newMatrix * normal;
+            //outNormal = (hitPoint - center).Normalised;
+            outNormal = normal;
             minDistance = t;
             return true;
         }

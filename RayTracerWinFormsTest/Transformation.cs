@@ -9,44 +9,73 @@ namespace RayTracerWinFormsTest
 {
     class Transformation
     {
-        public Matrix4x4 translate;
-        public Matrix4x4 rotation;
-        public Matrix4x4 scale;
-
         public Matrix4x4 transform;
+        public List<Matrix4x4> transformList;
 
-        public List<Matrix4x4> transList;
-
-        public Transformation(Transformation trans)
+        public Transformation(Transformation transforms)
         {
-            translate = trans.translate;
-            rotation = trans.rotation;
-            scale = trans.scale;
-            transform = new Matrix4x4();
-            transList = new List<Matrix4x4>();
-            foreach (Matrix4x4 tran in trans.transList)
+            transform = Matrix();
+            transformList = new List<Matrix4x4>();
+            foreach (Matrix4x4 transform in transforms.transformList)
             {
-                transList.Add(tran);
+                transformList.Add(transform);
             }
         }
 
         public Transformation()
         {
-            translate = new Matrix4x4();
-            rotation = new Matrix4x4();
-            scale = new Matrix4x4();
-            transform = new Matrix4x4();
-            transList = new List<Matrix4x4>();
+            transform = Matrix();
+            transformList = new List<Matrix4x4>();
         }
 
         public Matrix4x4 GetMatrix()
         {
-            transform = new Matrix4x4();
-            for (int i = transList.Count - 1; i >= 0; i--)
+            if(transformList == null)
             {
-                transform = transList[i] * transform;
+                return transform;
+            } else
+            {
+                transform = Matrix();
+                for (int i = transformList.Count - 1; i >= 0; i--)
+                {
+                  transform = transformList[i] * transform;
+                }
+                return transform;
             }
-            return transform;
+           
+        }
+
+        public Matrix4x4 GetReverseTransform()
+        {
+            Matrix4x4 reverseTransform;
+            Matrix4x4.Invert(transform, out reverseTransform);
+            return reverseTransform;
+        }
+
+        public Matrix4x4 Matrix()
+        {
+            Matrix4x4 newMatrix = new Matrix4x4();
+            newMatrix.M11 = 1;
+            newMatrix.M12 = 0;
+            newMatrix.M13 = 0;
+            newMatrix.M14 = 0;
+
+            newMatrix.M21 = 0;
+            newMatrix.M22 = 1;
+            newMatrix.M23 = 0;
+            newMatrix.M24 = 0;
+
+            newMatrix.M31 = 0;
+            newMatrix.M32 = 0;
+            newMatrix.M33 = 1;
+            newMatrix.M34 = 0;
+
+            newMatrix.M41 = 0;
+            newMatrix.M42 = 0;
+            newMatrix.M43 = 0;
+            newMatrix.M44 = 1;
+
+            return newMatrix;
         }
     }
 }

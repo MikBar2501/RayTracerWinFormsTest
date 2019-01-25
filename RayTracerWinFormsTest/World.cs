@@ -60,14 +60,15 @@ namespace RayTracerWinFormsTest
         public List<PointLight> Lights { get { return lights; } }
 
         public bool AnyObstacleBetween(Vector3 pointA, Vector3 pointB)
-        {    // odległość od cieniowanego punktu do światła    
+        {        
             Vector3 vectorAB = pointB - pointA;
             double distAB = vectorAB.Length;
             double currDistance = Ray.Huge;
-            // promień (półprosta) z cieniowanego punktu w kierunku światła    
+               
             Ray ray = new Ray(pointA, vectorAB);
             
-            Vector3 ignored = default(Vector3); foreach (var obj in objects)
+            Vector3 ignored = default(Vector3);
+            foreach (var obj in objects)
             {
                 // jeśli jakiś obiekt jest na drodze promienia oraz trafienie        
                 // nastąpiło bliżej niż odległość punktu do światła,       

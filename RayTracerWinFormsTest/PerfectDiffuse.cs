@@ -12,12 +12,6 @@ namespace RayTracerWinFormsTest
         public PerfectDiffuse(ColorRgb materialColor) {
             this.materialColor = materialColor;
         }
-        /*public ColorRgb Radiance(PointLight light, HitInfo hit) {
-            Vector3 inDirection = (light.Position - hit.HitPoint).Normalised;
-            double diffuseFactor = inDirection.Dot(hit.Normal);
-            if (diffuseFactor < 0) { return ColorRgb.Black; }
-            return light.Color * materialColor * diffuseFactor;
-        }*/
 
         public ColorRgb Shade(Raytracer tracer, HitInfo hit)
         {
@@ -31,6 +25,20 @@ namespace RayTracerWinFormsTest
                 totalColor += light.Color * materialColor * diffuseFactor;
             }
             return totalColor;
+        }
+
+        public void ChangeColor(double R, double G, double B)
+        {
+            R = 255 * R;
+            G = 255 * G;
+            B = 255 * B;
+
+            materialColor = new ColorRgb(R, G, B);
+        }
+
+        public void ChangeColor(ColorRgb color)
+        {
+            materialColor = color;
         }
     }
 }
